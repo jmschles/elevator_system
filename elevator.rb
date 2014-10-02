@@ -2,13 +2,15 @@ class Elevator
   attr_reader   :current_floor, :id, :direction
   attr_accessor :destination_queue
 
+  # @current_floor and @direction would be updated by an external API
   def initialize(id)
     @id                = id
-    @current_floor     = 1
     @destination_queue = []
+    @current_floor     = 1
     @direction         = :stopped
   end
 
+  # Adds a new request to the queue, then reorders the queue
   def add_floor_to_destination_queue(destination_floor)
     unless valid_destination?(destination_floor)
       warn "Cannot go to floor #{destination_floor}: elevator moving wrong way"
@@ -30,10 +32,12 @@ class Elevator
     @direction != :stopped
   end
 
+  # Empties out the destination queue, one stop at a time
+  # Stops the elevator when the queue is empty
   def perform_moves
     @direction = determine_direction(next_destination)
-    stop_at_current_floor if stopped?   # already at next destination
-    move_to_next_destination
+    # if we're stopped, it means we're already at our next destination
+    stopped? ? stop_at_current_floor : move_to_next_destination
     if @destination_queue.empty?
       @direction = :stopped
     else
@@ -48,7 +52,7 @@ class Elevator
   private
 
   def determine_direction(destination_floor)
-    return nil if @current_floor == destination_floor
+    return :stopped if @current_floor == destination_floor
     (@current_floor < destination_floor) ? :up : :down
   end
 
@@ -60,6 +64,8 @@ class Elevator
     @direction == :up
   end
 
+  # Placeholder: just a rudimentary model of elevator motion
+  # In reality, elevators would have to provide feedback about their motion
   def move_one_floor
     sleep 1
     @direction == :up ? @current_floor += 1 : @current_floor -= 1
@@ -79,10 +85,12 @@ class Elevator
   end
 
   def stop_at_current_floor
-    puts "Ding! Elevator #{@id} arriving at floor #{@destination_queue.last}"
-    @destination_queue.pop
+    puts "Ding! Elevator #{@id} arriving at floor #{@current_floor}"
+    @destination_queue.shift
   end
 
+  # This isn't a very accommodating elevator
+  # It won't let you press the "up" button, then choose a floor below you
   def valid_destination?(requested_floor)
     return true unless in_use?
     moving_in_right_direction?(requested_floor)
