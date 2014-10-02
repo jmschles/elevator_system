@@ -30,15 +30,15 @@ class ElevatorSystem
     @elevators.sort_by { |e| (e.current_floor - requested_floor).abs }
   end
 
-  def closest_eligible_elevator(requested_direction, destination_floor)
-    best_elevator = elevators_sorted_by_call_proximity.detect do |e|
-      e.eligible_for_pickup?(requested_direction, destination_floor)
+  def closest_eligible_elevator(requested_direction, requested_floor)
+    best_elevator = elevators_sorted_by_call_proximity(requested_floor).detect do |e|
+      e.eligible_for_pickup?(requested_direction, requested_floor)
     end
     if best_elevator
       best_elevator
     else
       # sleep here?
-      closest_eligible_elevator(requested_direction, destination_floor)
+      closest_eligible_elevator(requested_direction, requested_floor)
     end
   end
 end

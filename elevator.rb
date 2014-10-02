@@ -10,7 +10,7 @@ class Elevator
   end
 
   def add_floor_to_destination_queue(destination_floor)
-    unless valid_destination(destination_floor)
+    unless valid_destination?(destination_floor)
       warn "Cannot go to floor #{destination_floor}: elevator moving wrong way"
       return
     end
@@ -61,10 +61,8 @@ class Elevator
   end
 
   def move_one_floor
-    Thread.new do
-      sleep 1.5
-      @direction == :up ? @current_floor += 1 : @current_floor -= 1
-    end
+    sleep 1
+    @direction == :up ? @current_floor += 1 : @current_floor -= 1
   end
 
   def move_to_next_destination
