@@ -10,7 +10,9 @@ class ElevatorSystem
 
   # Called when someone requests an elevator
   def receive_call(requested_direction, requested_floor)
+    (invalid_direction_warning(requested_direction) and return) unless valid_direction?(requested_direction)
     (invalid_floor_warning(requested_floor) and return) unless valid_floor?(requested_floor)
+
     elevator = find_closest_eligible_elevator(requested_direction, requested_floor)
     elevator.add_floor_to_destination_queue(requested_floor)
     elevator.perform_moves unless elevator.in_use?
@@ -20,6 +22,7 @@ class ElevatorSystem
   def receive_internal_request(elevator_id, requested_floor)
     (invalid_elevator_warning(elevator_id) and return) unless valid_elevator_id?(elevator_id)
     (invalid_floor_warning(requested_floor) and return) unless valid_floor?(requested_floor)
+
     elevator = @elevators.detect { |e| e.id == elevator_id }
     elevator.add_floor_to_destination_queue(requested_floor)
     elevator.perform_moves unless elevator.in_use?
@@ -44,6 +47,11 @@ class ElevatorSystem
     end
   end
 
+  def invalid_direction_warning(requested_direction)
+    warn "Elevator can only go up or down, ignoring request"
+    true
+  end
+
   def invalid_elevator_warning(elevator_id)
     warn "Elevator #{elevator_id} does not exist, ignoring request"
     true
@@ -52,6 +60,10 @@ class ElevatorSystem
   def invalid_floor_warning(requested_floor)
     warn "Floor #{requested_floor} does not exist, ignoring request"
     true
+  end
+
+  def valid_direction?(requested_direction)
+    %i[:up :down].include?(requested_direction)
   end
 
   def valid_elevator_id?(elevator_id)
