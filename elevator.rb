@@ -6,7 +6,7 @@ class Elevator
     @id                = id
     @current_floor     = 1
     @destination_queue = []
-    @direction         = nil
+    @direction         = :stopped
   end
 
   def add_floor_to_destination_queue(destination_floor)
@@ -27,18 +27,22 @@ class Elevator
   end
 
   def in_use?
-    !!@direction
+    @direction != :stopped
   end
 
   def perform_moves
     @direction = determine_direction(next_destination)
-    stop_at_current_floor unless @direction
+    stop_at_current_floor if stopped?   # already at next destination
     move_to_next_destination
     if @destination_queue.empty?
-      @direction = nil
+      @direction = :stopped
     else
       perform_moves
     end
+  end
+
+  def stopped?
+    @direction == :stopped
   end
 
   private
