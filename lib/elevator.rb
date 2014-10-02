@@ -24,8 +24,7 @@ class Elevator
   def eligible_for_pickup?(requested_direction, requested_floor)
     return true unless in_use?
     return false unless @direction == requested_direction
-    return true if moving_in_right_direction?(requested_floor)
-    false
+    moving_toward_request?(requested_floor)
   end
 
   def in_use?
@@ -76,7 +75,7 @@ class Elevator
     stop_at_current_floor
   end
 
-  def moving_in_right_direction?(requested_floor)
+  def moving_toward_request?(requested_floor)
     (going_up? && requested_floor > @current_floor) || (going_down? && requested_floor < @current_floor)
   end
 
@@ -93,6 +92,6 @@ class Elevator
   # It won't let you press the "up" button, then choose a floor below you
   def valid_destination?(requested_floor)
     return true unless in_use?
-    moving_in_right_direction?(requested_floor)
+    moving_toward_request?(requested_floor)
   end
 end

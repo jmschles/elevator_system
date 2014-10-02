@@ -88,4 +88,52 @@ describe Elevator do
       expect(elevator.destination_queue).to eq([3, 2, 1])
     end
   end
+
+  describe "#eligible_for_pickup?" do
+    let(:elevator) { Elevator.new(1) }
+
+    context "when the elevator is not in use" do
+      it "returns true" do
+        elevator.instance_variable_set("@direction", :stopped)
+        requested_direction = :up
+        requested_floor     = 3
+        expect(elevator.eligible_for_pickup?(requested_direction, requested_floor)).to eq(true)
+      end
+    end
+
+    context "when the elevator is in use" do
+      it "returns false if the elevator's direction and the requested direction don't match" do
+        elevator.instance_variable_set("@direction", :up)
+        requested_direction = :down
+        requested_floor     = 3
+        expect(elevator.eligible_for_pickup?(requested_direction, requested_floor)).to eq(false)
+      end
+
+      it "returns true if it's moving towards the request" do
+        elevator.instance_variable_set("@direction", :up)
+        elevator.instance_variable_set("@current_floor", 2)
+        requested_direction = :up
+        requested_floor     = 3
+        expect(elevator.eligible_for_pickup?(requested_direction, requested_floor)).to eq(true)
+      end
+
+      it "returns false if it's not moving towards the request" do
+        elevator.instance_variable_set("@direction", :up)
+        elevator.instance_variable_set("@current_floor", 4)
+        requested_direction = :up
+        requested_floor     = 3
+        expect(elevator.eligible_for_pickup?(requested_direction, requested_floor)).to eq(false)
+      end
+    end
+  end
+
+  describe "#stop_at_current_floor" do
+    let(:elevator) { Elevator.new(1) }
+
+    it "shifts the first element off the destination queue" do
+      elevator.instance_variable_set("@destination_queue", [1, 2])
+      elevator.send(:stop_at_current_floor)
+      expect(elevator.destination_queue).to eq([2])
+    end
+  end
 end
