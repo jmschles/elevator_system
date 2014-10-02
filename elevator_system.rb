@@ -10,6 +10,7 @@ class ElevatorSystem
 
   # Called when someone requests an elevator
   def receive_call(requested_direction, requested_floor)
+    (invalid_floor_warning(requested_floor) and return) unless valid_floor?(requested_floor)
     elevator = find_closest_eligible_elevator(requested_direction, requested_floor)
     elevator.add_floor_to_destination_queue(requested_floor)
     elevator.perform_moves unless elevator.in_use?
@@ -17,6 +18,8 @@ class ElevatorSystem
 
   # Called when someone pushes a button inside an elevator
   def receive_internal_request(elevator_id, requested_floor)
+    (invalid_elevator_warning(elevator_id) and return) unless valid_elevator_id?(elevator_id)
+    (invalid_floor_warning(requested_floor) and return) unless valid_floor?(requested_floor)
     elevator = @elevators.detect { |e| e.id == elevator_id }
     elevator.add_floor_to_destination_queue(requested_floor)
     elevator.perform_moves unless elevator.in_use?
@@ -39,5 +42,24 @@ class ElevatorSystem
     else
       find_closest_eligible_elevator(requested_direction, requested_floor)
     end
+  end
+
+  def invalid_elevator_warning(elevator_id)
+    warn "Elevator #{elevator_id} does not exist, ignoring request"
+    true
+  end
+
+  def invalid_floor_warning(requested_floor)
+    warn "Floor #{requested_floor} does not exist, ignoring request"
+    true
+  end
+
+  def valid_elevator_id?(elevator_id)
+    (1..@elevators.count).include?(elevator_id)
+  end
+
+  def valid_floor?(requested_floor)
+    # no basements, for now
+    (1..@floors).include?(requested_floor)
   end
 end
