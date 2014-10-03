@@ -63,7 +63,7 @@ class ElevatorSystem
   end
 
   def valid_direction?(requested_direction)
-    %i[:up :down].include?(requested_direction)
+    %i[up down].include?(requested_direction)
   end
 
   def valid_elevator_id?(elevator_id)
