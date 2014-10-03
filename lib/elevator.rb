@@ -4,6 +4,8 @@ class Elevator
 
   # @current_floor and @direction would be updated by an external API,
   # assuming the elevators are telling us their status somehow
+  # For now, we're moving/updating the elevators ourselves
+  # (see #move_one_floor and #stop_at_current_floor)
   def initialize(id)
     @id                = id
     @destination_queue = []
