@@ -36,8 +36,9 @@ class ElevatorSystem
 
   # Finds the nearest elevator that's headed in the right direction or not in use
   # Runs in a loop until an eligible elevator is found
-  # Should be threaded and on a timeout (1 second?) so it can run in the background
-  # while the system processes other requests
+  # FIXME: Should be threaded and on a timeout (1 second?) so it can run in the
+  # background while the system processes other requests
+  # Right now, it would just crash if no eligible elevators were found
   def find_closest_eligible_elevator(requested_direction, requested_floor)
     closest_eligible_elevator = elevators_sorted_by_call_proximity(requested_floor).detect do |e|
       e.eligible_for_pickup?(requested_direction, requested_floor)
