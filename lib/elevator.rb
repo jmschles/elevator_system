@@ -2,7 +2,8 @@ class Elevator
   attr_reader   :current_floor, :id, :direction
   attr_accessor :destination_queue
 
-  # @current_floor and @direction would be updated by an external API
+  # @current_floor and @direction would be updated by an external API,
+  # assuming the elevators are telling us their status somehow
   def initialize(id)
     @id                = id
     @destination_queue = []
@@ -10,7 +11,7 @@ class Elevator
     @direction         = :stopped
   end
 
-  # Adds a new request to the queue, then reorders the queue
+  # Adds a new destination to the queue, then reorders the queue
   def add_floor_to_destination_queue(destination_floor)
     unless valid_destination?(destination_floor)
       warn "Cannot go to floor #{destination_floor}: elevator moving wrong way"
@@ -63,12 +64,12 @@ class Elevator
     @direction == :up
   end
 
-  # OPTIMIZE: it would be nice to run this in its own thread, so the
-  # system could continue to run while elevators are moving.
+  # OPTIMIZE: run this in its own thread, so the system could
+  # continue to run while elevators are moving.
   # Wrapping this method in a Thread.new block won't work, because the calling code
   # won't wait for it to finish
   def move_one_floor
-    sleep 1
+    sleep 0.5
     @direction == :up ? @current_floor += 1 : @current_floor -= 1
   end
 
@@ -85,9 +86,11 @@ class Elevator
     @destination_queue.first
   end
 
+  # OPTIMIZE: run this in its own thread, so the system could
+  # continue to run while elevators are moving.
   def stop_at_current_floor
-    puts "Ding! Elevator #{@id} arriving at floor #{@current_floor}"
     @destination_queue.shift
+    sleep 1
   end
 
   # This isn't a very accommodating elevator
