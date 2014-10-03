@@ -89,6 +89,25 @@ describe Elevator do
     end
   end
 
+  describe "#determine_direction" do
+    let(:elevator) { Elevator.new(1) }
+
+    it "stays put if it's already at the destination floor" do
+      elevator.instance_variable_set("@current_floor", 3)
+      expect(elevator.send(:determine_direction, 3)).to eq(:stopped)
+    end
+
+    it "returns :down if the destination is below" do
+      elevator.instance_variable_set("@current_floor", 3)
+      expect(elevator.send(:determine_direction, 1)).to eq(:down)
+    end
+
+    it "returns :up if the destination is above" do
+      elevator.instance_variable_set("@current_floor", 3)
+      expect(elevator.send(:determine_direction, 50)).to eq(:up)
+    end
+  end
+
   describe "#eligible_for_pickup?" do
     let(:elevator) { Elevator.new(1) }
 
@@ -124,6 +143,17 @@ describe Elevator do
         requested_floor     = 3
         expect(elevator.eligible_for_pickup?(requested_direction, requested_floor)).to eq(false)
       end
+    end
+  end
+
+  describe "#perform_moves" do
+    let(:elevator) { Elevator.new(1) }
+
+    it "goes through the destination queue until it's empty" do
+      elevator.instance_variable_set("@destination_queue", [2, 3, 4])
+      elevator.perform_moves
+      expect(elevator.current_floor).to eq(4)
+      expect(elevator.destination_queue).to be_empty
     end
   end
 

@@ -63,8 +63,10 @@ class Elevator
     @direction == :up
   end
 
-  # Placeholder: just a rudimentary model of elevator motion
-  # In reality, elevators would have to provide feedback about their motion
+  # OPTIMIZE: it would be nice to run this in its own thread, so the
+  # system could continue to run while elevators are moving.
+  # Wrapping this method in a Thread.new block won't work, because the calling code
+  # won't wait for it to finish
   def move_one_floor
     sleep 1
     @direction == :up ? @current_floor += 1 : @current_floor -= 1
@@ -76,7 +78,7 @@ class Elevator
   end
 
   def moving_toward_request?(requested_floor)
-    (going_up? && requested_floor > @current_floor) || (going_down? && requested_floor < @current_floor)
+    (going_up? && requested_floor >= @current_floor) || (going_down? && requested_floor <= @current_floor)
   end
 
   def next_destination

@@ -1,4 +1,4 @@
-require './elevator.rb'
+require_relative './elevator.rb'
 
 class ElevatorSystem
   attr_reader :elevators, :floors
