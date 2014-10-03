@@ -43,9 +43,9 @@ describe ElevatorSystem do
       e1.instance_variable_set("@current_floor", 5)
       e2.instance_variable_set("@current_floor", 2)
       e3.instance_variable_set("@current_floor", 1)
-      allow(e1).to receive(:eligible_for_pickup?).with(anything, anything).and_return(false)
-      allow(e2).to receive(:eligible_for_pickup?).with(anything, anything).and_return(true)
-      allow(e3).to receive(:eligible_for_pickup?).with(anything, anything).and_return(true)
+      allow(e1).to receive(:eligible_for_pickup?).with(any_args).and_return(false)
+      allow(e2).to receive(:eligible_for_pickup?).with(any_args).and_return(true)
+      allow(e3).to receive(:eligible_for_pickup?).with(any_args).and_return(true)
       expect(system.send(:find_closest_eligible_elevator, :up, 4)).to eq(e2)
     end
   end
