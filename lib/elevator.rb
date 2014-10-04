@@ -1,6 +1,5 @@
 class Elevator
-  attr_reader   :current_floor, :id, :direction
-  attr_accessor :destination_queue
+  attr_reader   :current_floor, :destination_queue, :direction, :secondary_queue, :id
 
   # @current_floor and @direction would be updated by an external API,
   # assuming the elevators are telling us their status somehow
