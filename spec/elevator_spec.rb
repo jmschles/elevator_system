@@ -62,14 +62,14 @@ describe Elevator do
   describe "#add_floor_to_destination_queue" do
     let(:elevator) { Elevator.new(1) }
 
-    it "warns and returns if the requested floor is in the wrong direction" do
+    it "adds to the secondary queue if the requested floor is in the wrong direction" do
       elevator.instance_variable_set("@direction", :down)
       elevator.instance_variable_set("@destination_queue", [3, 2, 1])
       elevator.instance_variable_set("@current_floor", 4)
       destination_floor = 5
-      expect(elevator).to receive(:warn).with("Cannot go to floor #{destination_floor}: elevator moving wrong way")
       elevator.add_floor_to_destination_queue(5)
       expect(elevator.destination_queue).to eq([3, 2, 1])
+      expect(elevator.secondary_queue).to eq([5])
     end
 
     it "inserts the requested floor and sorts the queue ascending if the elevator is going up" do
@@ -89,22 +89,25 @@ describe Elevator do
     end
   end
 
-  describe "#determine_direction" do
+  describe "#set_direction" do
     let(:elevator) { Elevator.new(1) }
 
     it "stays put if it's already at the destination floor" do
       elevator.instance_variable_set("@current_floor", 3)
-      expect(elevator.send(:determine_direction, 3)).to eq(:stopped)
+      elevator.send(:set_direction, 3)
+      expect(elevator.direction).to eq(:stopped)
     end
 
     it "returns :down if the destination is below" do
       elevator.instance_variable_set("@current_floor", 3)
-      expect(elevator.send(:determine_direction, 1)).to eq(:down)
+      elevator.send(:set_direction, 1)
+      expect(elevator.direction).to eq(:down)
     end
 
     it "returns :up if the destination is above" do
       elevator.instance_variable_set("@current_floor", 3)
-      expect(elevator.send(:determine_direction, 50)).to eq(:up)
+      elevator.send(:set_direction, 50)
+      expect(elevator.direction).to eq(:up)
     end
   end
 
