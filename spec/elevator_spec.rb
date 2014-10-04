@@ -12,6 +12,11 @@ describe Elevator do
       expect(subject.destination_queue).to be_empty
     end
 
+    it "@secondary_queue is an empty array" do
+      expect(subject.secondary_queue).to be_an Array
+      expect(subject.secondary_queue).to be_empty
+    end
+
     it "is on the first floor" do
       expect(subject.current_floor).to eq(1)
     end
@@ -152,11 +157,26 @@ describe Elevator do
   describe "#perform_moves" do
     let(:elevator) { Elevator.new(1) }
 
-    it "goes through the destination queue until it's empty" do
-      elevator.instance_variable_set("@destination_queue", [2, 3, 4])
-      elevator.perform_moves
-      expect(elevator.current_floor).to eq(4)
-      expect(elevator.destination_queue).to be_empty
+    context "when the secondary_queue is empty" do
+      it "goes through the destination_queue until it's empty" do
+        elevator.instance_variable_set("@destination_queue", [2, 3, 4])
+        elevator.perform_moves
+        expect(elevator.current_floor).to eq(4)
+        expect(elevator.destination_queue).to be_empty
+        expect(elevator.direction).to eq(:stopped)
+      end
+    end
+
+    context "when the secondary_queue is not empty" do
+      it "switches to the secondary queue, sorts it, and empties it" do
+        elevator.instance_variable_set("@destination_queue", [8])
+        elevator.instance_variable_set("@secondary_queue", [4, 2, 6])
+        elevator.perform_moves
+        expect(elevator.current_floor).to eq(2)
+        expect(elevator.destination_queue).to be_empty
+        expect(elevator.secondary_queue).to be_empty
+        expect(elevator.direction).to eq(:stopped)
+      end
     end
   end
 
