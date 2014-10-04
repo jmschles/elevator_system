@@ -62,7 +62,7 @@ class Elevator
   private
 
   def set_direction(destination_floor)
-    @destination =
+    @direction =
       case @current_floor <=> destination_floor
       when -1
         :up
