@@ -9,19 +9,19 @@ class Elevator
   def initialize(id)
     @id                = id
     @destination_queue = []
+    @secondary_queue   = []
     @current_floor     = 1
     @direction         = :stopped
   end
 
   # Adds a new destination to the queue, then reorders the queue
   def add_floor_to_destination_queue(destination_floor)
-    unless valid_destination?(destination_floor)
-      warn "Cannot go to floor #{destination_floor}: elevator moving wrong way"
-      return
+    if valid_primary_destination?(destination_floor)
+      @destination_queue.push(destination_floor)
+      sort_destination_queue
+    else
+      @secondary_queue.push(destination_floor)
     end
-    @destination_queue.push(destination_floor)
-    @destination_queue.sort!
-    @destination_queue.reverse! if going_down?
   end
 
   def eligible_for_pickup?(requested_direction, requested_floor)
@@ -35,13 +35,21 @@ class Elevator
   end
 
   # Empties out the destination queue, one stop at a time
-  # Stops the elevator when the queue is empty
+  # Empties the secondary queue afterwards if
+  # Stops the elevator when the queues are empty
   def perform_moves
-    @direction = determine_direction(next_destination)
+    set_direction(next_destination)
     # if we're stopped, it means we're already at our next destination
     stopped? ? stop_at_current_floor : move_to_next_destination
     if @destination_queue.empty?
-      @direction = :stopped
+      if @secondary_queue.empty?
+        stop_moving
+      else
+        switch_direction
+        switch_to_secondary_queue
+        sort_destination_queue
+        perform_moves
+      end
     else
       perform_moves
     end
@@ -53,9 +61,16 @@ class Elevator
 
   private
 
-  def determine_direction(destination_floor)
-    return :stopped if @current_floor == destination_floor
-    (@current_floor < destination_floor) ? :up : :down
+  def set_direction(destination_floor)
+    @destination =
+      case @current_floor <=> destination_floor
+      when -1
+        :up
+      when 1
+        :down
+      else
+        :stopped
+      end
   end
 
   def going_down?
@@ -88,6 +103,11 @@ class Elevator
     @destination_queue.first
   end
 
+  def sort_destination_queue
+    @destination_queue.sort!
+    @destination_queue.reverse! if @direction == :down
+  end
+
   # OPTIMIZE: run this in its own thread, so the system could
   # continue to run while elevators are moving.
   def stop_at_current_floor
@@ -95,9 +115,21 @@ class Elevator
     sleep 1
   end
 
-  # This isn't a very accommodating elevator
-  # It won't let you press the "up" button, then choose a floor below you
-  def valid_destination?(requested_floor)
+  def stop_moving
+    @direction = :stopped
+  end
+
+  def switch_direction
+    return if @direction == :stopped
+    @direction = (@direction == :up ? :down : :up)
+  end
+
+  def switch_to_secondary_queue
+    @destination_queue = @secondary_queue.dup
+    @secondary_queue   = []
+  end
+
+  def valid_primary_destination?(requested_floor)
     return true unless in_use?
     moving_toward_request?(requested_floor)
   end
