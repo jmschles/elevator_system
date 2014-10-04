@@ -1,5 +1,5 @@
 class Elevator
-  attr_reader   :current_floor, :destination_queue, :direction, :secondary_queue, :id
+  attr_reader :current_floor, :destination_queue, :direction, :secondary_queue, :id
 
   # @current_floor and @direction would be updated by an external API,
   # assuming the elevators are telling us their status somehow
@@ -34,7 +34,7 @@ class Elevator
   end
 
   # Empties out the destination queue, one stop at a time
-  # Empties the secondary queue afterwards if
+  # Empties the secondary queue afterwards if it's populated
   # Stops the elevator when the queues are empty
   def perform_moves
     set_direction(next_destination)
